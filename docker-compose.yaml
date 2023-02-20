@@ -1,0 +1,32 @@
+﻿volumes:
+  mongodb-data:
+    driver: local
+
+services:
+  server:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      target: development
+    command: npm run start:dev
+    container_name: notifications-api-server
+    env_file:
+      - ./.env
+    depends_on:
+      - mongodb
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    ports:
+      - '3000:3000'
+  
+  mongodb:
+    image: mongo
+    container_name: notifications-api-database
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+    volumes:
+      - 'mongodb-data:/data/db'
+    ports:
+      - '27017:27017'
