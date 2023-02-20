@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
 import { NotificationsService } from './notifications.service';
-import { Notification } from 'src/db/schemas/notification.schema';
+import { Notification } from 'src/database/schemas/notification.schema';
 import { CreateNotification } from './dto/create-notification.dto';
 import { UpdateNotification } from './dto/update-notification.dto';
 

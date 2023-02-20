@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import { Injectable } from '@nestjs/common';
-import { Notification } from 'src/db/schemas/notification.schema';
+import { Notification } from 'src/database/schemas/notification.schema';
 import { NotificationsRepository } from './notifications.repository';
 import { UpdateNotification } from './dto/update-notification.dto';
 
@@ -19,7 +19,6 @@ export class NotificationsService {
 
   async createNotification(title: string, content: string, userEmail: string, imageUrl: string,
     channel: string, sendAfter: Date): Promise<Notification> {
-      console.log(userEmail)
     return this.notificationsRepository.create({
       id: uuidv4(),
       title,
