@@ -15,12 +15,10 @@ function handleSecurity(app) {
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  console.log(process.env.NODE_ENV);
-
-  handleSecurity(app);
   app.use(morgan('tiny')); //enable http requests logs
+  handleSecurity(app);
 
-  await app.listen(3000);
+  await app.listen(process.env.PORT);
 }
 
 bootstrap();
