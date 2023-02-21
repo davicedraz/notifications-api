@@ -1,8 +1,11 @@
 {
   "name": "notifications-api",
   "version": "0.0.1",
-  "description": "",
-  "author": "",
+  "description": "The Notification Manager API for creating and scheduling new notifications",
+  "author": {
+    "name": "Davi Cedraz",
+    "email": "davioler@gmail.com"
+  },
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
