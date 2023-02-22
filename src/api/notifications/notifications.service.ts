@@ -1,8 +1,8 @@
 import { v4 as uuidv4 } from 'uuid';
 import { Injectable } from '@nestjs/common';
 import { Notification } from 'src/database/schemas/notification.schema';
+import { NotificationDTO } from './dto/notification.dto';
 import { NotificationsRepository } from './notifications.repository';
-import { UpdateNotification } from './dto/update-notification.dto';
 
 @Injectable()
 export class NotificationsService {
@@ -32,7 +32,7 @@ export class NotificationsService {
     })
   }
 
-  async updateNotification(notificationId: string, notificationUpdates: UpdateNotification): Promise<Notification> {
+  async updateNotification(notificationId: string, notificationUpdates: Partial<NotificationDTO>): Promise<Notification> {
     return this.notificationsRepository.findOneAndUpdate({ notificationId }, notificationUpdates);
   }
 

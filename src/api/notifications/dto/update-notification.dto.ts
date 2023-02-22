@@ -1,8 +1,7 @@
-﻿export class UpdateNotification {
+﻿export class UpdateNotificationDTO {
   title: string;
   content: string;
   imageUrl: string;
   channel: string;
-  userEmail: string;
   sendAfter: Date;
 }

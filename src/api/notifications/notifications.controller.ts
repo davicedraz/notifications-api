@@ -1,48 +1,59 @@
-import { Body, Controller, Get, Inject, Param, Patch, Post } from '@nestjs/common';
-import { Notification } from './../../database/schemas/notification.schema';
+import { Body, Controller, Get, Inject, Logger, Param, Patch, Post } from '@nestjs/common';
 import { NotificationsService } from './notifications.service';
-import { CreateNotification } from './dto/create-notification.dto';
-import { UpdateNotification } from './dto/update-notification.dto';
+import { CreateNotificationDTO } from './dto/create-notification.dto';
+import { UpdateNotificationDTO } from './dto/update-notification.dto';
 import { ClientProxy } from '@nestjs/microservices';
+import { NotificationDTO } from './dto/notification.dto';
 import { AMQP_SERVICE } from 'util/constants';
 
 @Controller('notifications')
 export class NotificationsController {
+
+  private readonly logger = new Logger(NotificationsController.name);
+
   constructor(
     private readonly notificationsService: NotificationsService,
     @Inject(AMQP_SERVICE) private amqpService: ClientProxy
   ) { }
 
   @Get(':id')
-  async getUser(@Param('id') notificationId: string): Promise<Notification> {
-    return this.notificationsService.getNotificationById(notificationId);
+  async getUser(@Param('id') notificationId: string): Promise<NotificationDTO> {
+    const notification = await this.notificationsService.getNotificationById(notificationId);
+    return NotificationDTO.fromEntity(notification);
   }
 
   @Get()
-  async getNotifications(): Promise<Notification[]> {
-    return this.notificationsService.listNotifications();
+  async getNotifications(): Promise<NotificationDTO[]> {
+    const notificationsList = await this.notificationsService.listNotifications();
+    return notificationsList.map(notification => NotificationDTO.fromEntity(notification));
   }
 
   @Post()
-  async createNotification(@Body() newNotification: CreateNotification): Promise<Notification> {
-    const notification = await this.notificationsService.createNotification(
+  async createNotification(@Body() newNotification: CreateNotificationDTO): Promise<NotificationDTO> {
+    let notification = await this.notificationsService.createNotification(
       newNotification.title,
       newNotification.content,
-      newNotification.user_email,
-      newNotification.image_url,
+      newNotification.userEmail,
+      newNotification.imageUrl,
       newNotification.channel,
-      newNotification.send_after
+      newNotification.sendAfter
     );
 
-    const result = this.amqpService.send('create-new-notification', { notification });
-    result.subscribe();
+    const notificationDTO = NotificationDTO.fromEntity(notification)
+    this.amqpService.send('create-new-notification',
+      { notification: notificationDTO }
+    ).subscribe();
 
-    return notification;
+    notificationDTO.sentAt = new Date();
+    this.logger.log(`Notification ${notification.id} sent at ${notificationDTO.sentAt}`);
+
+    notification = await this.notificationsService.updateNotification(notification.id, notificationDTO);
+    return NotificationDTO.fromEntity(notification);
   }
 
   @Patch(':id')
-  async updateNotification(@Param('id') notificationId: string, @Body() updatedNotification: UpdateNotification): Promise<Notification> {
-    return this.notificationsService.updateNotification(notificationId, updatedNotification);
+  async updateNotification(@Param('id') notificationId: string, @Body() updatedNotification: UpdateNotificationDTO): Promise<NotificationDTO> {
+    const notification = await this.notificationsService.updateNotification(notificationId, updatedNotification);
+    return NotificationDTO.fromEntity(notification);
   }
-
 }

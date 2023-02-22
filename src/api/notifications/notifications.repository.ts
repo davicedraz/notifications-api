@@ -1,4 +1,4 @@
-﻿import { Injectable } from '@nestjs/common';
+﻿import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, Model } from 'mongoose';
 import { Notification, NotificationDocument } from 'src/database/schemas/notification.schema';
@@ -6,6 +6,9 @@ import { Notification, NotificationDocument } from 'src/database/schemas/notific
 
 @Injectable()
 export class NotificationsRepository {
+
+  private readonly logger = new Logger(NotificationsRepository.name);
+
   constructor(@InjectModel(Notification.name) private notificationModel: Model<NotificationDocument>) { }
 
   async findOne(notificationFilterQuery: FilterQuery<Notification>): Promise<Notification> {
@@ -17,7 +20,8 @@ export class NotificationsRepository {
   }
 
   async create(notification: Notification): Promise<Notification> {
-    console.log(notification)
+    this.logger.log("Created new notification", notification);
+
     const newNotification = new this.notificationModel(notification);
     return newNotification.save();
   }

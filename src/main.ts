@@ -15,20 +15,13 @@ function handleSecurity(app) {
   }));
 }
 
-function startRabbitMQ(app) {
-  const rabbitmqService = new RabbitmqService();
-  app.connectMicroservice(rabbitmqService.getOptions(process.env.RABBIT_MQ_QUEUE));
-}
-
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  
+
   app.enableVersioning({ type: VersioningType.URI, defaultVersion: '1' });
   app.use(morgan('tiny')); //enable http requests logs
   handleSecurity(app);
-  startRabbitMQ(app);
-  
-  await app.startAllMicroservices();
+
   await app.listen(process.env.PORT);
 }
 

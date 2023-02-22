@@ -1,8 +1,8 @@
-﻿export interface CreateNotification {
+﻿export class CreateNotificationDTO {
   title: string;
   content: string;
-  image_url: string;
+  imageUrl: string;
   channel: string;
-  user_email: string;
-  send_after: Date;
+  userEmail: string;
+  sendAfter: Date;
 }
