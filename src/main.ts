@@ -6,6 +6,7 @@ import { rateLimit } from 'express-rate-limit';
 import * as morgan from 'morgan';
 import helmet from 'helmet';
 import { RabbitmqService } from './amqp/rabbitmq.service';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 function handleSecurity(app) {
   app.use(helmet()); //middleware to set security headers
@@ -15,12 +16,25 @@ function handleSecurity(app) {
   }));
 }
 
+function generateAPIDocs(app) {
+  const document = SwaggerModule.createDocument(
+    app,
+    new DocumentBuilder()
+      .setTitle('Notification Mananger')
+      .setDescription('The Notification Manager API for creating and scheduling new notifications')
+      .setVersion('0.0.1')
+      .build()
+  );
+  SwaggerModule.setup('', app, document);
+}
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.enableVersioning({ type: VersioningType.URI, defaultVersion: '1' });
   app.use(morgan('tiny')); //enable http requests logs
   handleSecurity(app);
+  generateAPIDocs(app);
 
   await app.listen(process.env.PORT);
 }
