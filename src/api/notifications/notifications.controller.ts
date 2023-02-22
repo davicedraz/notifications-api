@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Inject, Logger, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Get, Inject, Logger, Param, Patch, Post, ValidationPipe } from '@nestjs/common';
 import { NotificationsService } from './notifications.service';
 import { CreateNotificationDTO } from './dto/create-notification.dto';
 import { UpdateNotificationDTO } from './dto/update-notification.dto';
@@ -29,7 +29,7 @@ export class NotificationsController {
   }
 
   @Post()
-  async createNotification(@Body() newNotification: CreateNotificationDTO): Promise<NotificationDTO> {
+  async createNotification(@Body(ValidationPipe) newNotification: CreateNotificationDTO): Promise<NotificationDTO> {
     let notification = await this.notificationsService.createNotification(
       newNotification.title,
       newNotification.content,
@@ -52,7 +52,7 @@ export class NotificationsController {
   }
 
   @Patch(':id')
-  async updateNotification(@Param('id') notificationId: string, @Body() updatedNotification: UpdateNotificationDTO): Promise<NotificationDTO> {
+  async updateNotification(@Param('id') notificationId: string, @Body(ValidationPipe) updatedNotification: Partial<UpdateNotificationDTO>): Promise<NotificationDTO> {
     const notification = await this.notificationsService.updateNotification(notificationId, updatedNotification);
     return NotificationDTO.fromEntity(notification);
   }
