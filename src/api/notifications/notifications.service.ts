@@ -18,7 +18,8 @@ export class NotificationsService {
   }
 
   async createNotification(title: string, content: string, userEmail: string, imageUrl: string,
-    channel: string, sendAfter: Date): Promise<Notification> {
+    channel: string, scheduledAt: Date): Promise<Notification> {
+
     return this.notificationsRepository.create({
       id: uuidv4(),
       title,
@@ -26,9 +27,8 @@ export class NotificationsService {
       userEmail,
       imageUrl,
       channel,
-      scheduledAt: sendAfter,
-      sentAt: undefined,
-      receivedAt: undefined
+      scheduledAt,
+      sentAt: undefined
     })
   }
 

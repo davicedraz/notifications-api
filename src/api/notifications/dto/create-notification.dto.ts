@@ -1,8 +1,8 @@
-﻿export class CreateNotification {
+﻿export interface CreateNotification {
   title: string;
   content: string;
-  imageUrl: string;
+  image_url: string;
   channel: string;
-  userEmail: string;
-  sendAfter: Date;
+  user_email: string;
+  send_after: Date;
 }

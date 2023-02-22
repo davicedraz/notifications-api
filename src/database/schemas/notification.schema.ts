@@ -28,9 +28,6 @@ export class Notification {
 
   @Prop()
   sentAt: Date;
-
-  @Prop()
-  receivedAt: Date;
 }
 
 export const NotificationSchema = SchemaFactory.createForClass(Notification);
