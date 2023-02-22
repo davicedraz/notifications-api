@@ -1,0 +1,1 @@
+﻿export const AMQP_SERVICE = 'RabbitMQ';

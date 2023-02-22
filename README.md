@@ -24,6 +24,10 @@ $ npm run start:prod
 ## Using Docker
 
 ```bash
+docker network create notifications-net
+```
+
+```bash
 docker-compose up
 ```
 

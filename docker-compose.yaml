@@ -1,4 +1,9 @@
-﻿volumes:
+﻿networks: 
+  default: 
+      name: notifications-net
+      external: true
+
+volumes:
   mongodb-data:
     driver: local
 

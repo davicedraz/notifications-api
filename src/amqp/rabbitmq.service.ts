@@ -10,6 +10,9 @@ export class RabbitmqService {
         urls: [process.env.RABBIT_MQ_URI],
         queue: process.env.RABBIT_MQ_QUEUE,
         persistent: true,
+        queueOptions: {
+          durable: true
+        },
         noAck,
       },
     };
