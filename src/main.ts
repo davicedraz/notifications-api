@@ -20,12 +20,12 @@ function generateAPIDocs(app) {
   const document = SwaggerModule.createDocument(
     app,
     new DocumentBuilder()
-      .setTitle('Notification Mananger')
-      .setDescription('The Notification Manager API for creating and scheduling new notifications')
+      .setTitle('Notification Manager')
+      .setDescription('A REST API to create and schedule new notifications')
       .setVersion('0.0.1')
       .build()
   );
-  SwaggerModule.setup('', app, document);
+  SwaggerModule.setup('docs', app, document);
 }
 
 async function bootstrap() {

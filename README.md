@@ -31,6 +31,16 @@ docker network create notifications-net
 docker-compose up
 ```
 
+## API Documentation (Swagger) 
+
+![Swagger](docs/img/swagger.png)
+
+Hit `/docs`
+```bash
+http://localhost:3000/docs
+```
+
+
 ## Test
 
 ```bash
