@@ -1,18 +1,17 @@
-import { Body, Controller, Delete, Get, Inject, Logger, Param, Post, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpStatus, NotFoundException, Param, Post, Res, ValidationPipe } from '@nestjs/common';
 import { NotificationsService } from './notifications.service';
+import { UsersService } from './../users/users.service';
 import { CreateNotificationDTO } from './dto/create-notification.dto';
-import { ClientProxy } from '@nestjs/microservices';
 import { NotificationDTO } from './dto/notification.dto';
-import { AMQP_SERVICE } from 'util/constants';
+
+import { Response } from 'express';
 
 @Controller('notifications')
 export class NotificationsController {
 
-  private readonly logger = new Logger(NotificationsController.name);
-
   constructor(
+    private readonly userService: UsersService,
     private readonly notificationsService: NotificationsService,
-    @Inject(AMQP_SERVICE) private amqpService: ClientProxy
   ) { }
 
   @Get(':id')
@@ -28,7 +27,10 @@ export class NotificationsController {
   }
 
   @Post()
-  async createNotification(@Body(ValidationPipe) newNotification: CreateNotificationDTO): Promise<NotificationDTO> {
+  async createNotification(@Body(ValidationPipe) newNotification: CreateNotificationDTO, @Res() response: Response): Promise<NotificationDTO | Response<any>> {
+    const user = await this.userService.getUserByEmail(newNotification.userEmail);
+    if (!user) throw new NotFoundException('No user registered with given email');
+
     let notification = await this.notificationsService.createNotification(
       newNotification.title,
       newNotification.content,
@@ -38,16 +40,18 @@ export class NotificationsController {
       newNotification.sendAfter
     );
 
-    const notificationDTO = NotificationDTO.fromEntity(notification)
-    this.amqpService.send('create-new-notification',
-      { notification: notificationDTO }
-    ).subscribe();
+    const notificationSent = await this.notificationsService.sendNotification(user, notification);
 
-    notificationDTO.sentAt = new Date();
-    this.logger.log(`Notification ${notification.id} sent at ${notificationDTO.sentAt}`);
+    if (!notificationSent.sentAt) {
+      return response.status(HttpStatus.ACCEPTED)
+        .send({
+          message: `User opted-out for ${notification.channel} notifications`,
+          notification: NotificationDTO.fromEntity(notificationSent)
+        });
+    }
 
-    notification = await this.notificationsService.updateNotification(notification.id, notificationDTO);
-    return NotificationDTO.fromEntity(notification);
+    return response.status(HttpStatus.CREATED)
+      .send(NotificationDTO.fromEntity(notificationSent));
   }
 
   @Delete(':id')

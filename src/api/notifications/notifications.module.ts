@@ -8,9 +8,11 @@ import { NotificationsService } from './notifications.service';
 import { AMQP_SERVICE } from 'util/constants';
 import { ClientsModule } from '@nestjs/microservices';
 import { ConfigModule } from '@nestjs/config';
+import { UsersModule } from '../users/users.module';
 
 @Module({
   imports: [
+    UsersModule,
     ClientsModule.registerAsync([{
       name: AMQP_SERVICE,
       imports: [ConfigModule],

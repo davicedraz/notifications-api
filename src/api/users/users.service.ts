@@ -2,11 +2,17 @@ import { UserDTO } from './dto/user.dto';
 import { v4 as uuidv4 } from 'uuid';
 import { Injectable } from '@nestjs/common';
 import { User } from 'src/database/schemas/user.schema';
+import { Notification } from 'src/database/schemas/notification.schema';
 import { UsersRepository } from './user.repository';
 
 @Injectable()
 export class UsersService {
   constructor(private readonly usersRepository: UsersRepository) { }
+
+  shouldSendNotification(user: User, notification: Notification) {
+    const userPreferenceForChannel = user.preferences.find(p => p.channel == notification.channel);
+    return userPreferenceForChannel.enabled;
+  }
 
   async getUserById(userId: string): Promise<User> {
     return this.usersRepository.findOne({ userId });
