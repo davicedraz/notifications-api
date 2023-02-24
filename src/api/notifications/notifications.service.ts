@@ -7,6 +7,7 @@ import { NotificationsRepository } from './notifications.repository';
 import { ClientProxy } from '@nestjs/microservices';
 import { UsersService } from '../users/users.service';
 import { User } from 'src/database/schemas/user.schema';
+import { UserDTO } from '../users/dto/user.dto';
 
 @Injectable()
 export class NotificationsService {
@@ -24,7 +25,7 @@ export class NotificationsService {
 
     if (this.userService.shouldSendNotification(user, notification)) {
       this.amqpService.send('create-new-notification',
-        { notification: notificationDTO }
+        { notification: notificationDTO, user: UserDTO.fromEntity(user) }
       ).subscribe();
 
       notification = await this.updateSentAt(notificationDTO);
