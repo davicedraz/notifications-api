@@ -24,6 +24,10 @@ services:
       - /usr/src/app/node_modules
     ports:
       - '${PORT}:${PORT}'
+    environment:
+      - MONGODB_URI=mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@mongodb:27017/
+      - RABBITMQ_URI=amqp://${RABBITMQ_USERNAME}:${RABBITMQ_PASSWORD}@rabbitmq:5672
+      - RABBITMQ_QUEUE=${RABBITMQ_QUEUE}
   
   mongodb:
     image: mongo

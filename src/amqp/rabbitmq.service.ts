@@ -7,7 +7,7 @@ export class RabbitmqService {
     return {
       transport: Transport.RMQ,
       options: {
-        urls: [process.env.RABBIT_MQ_URI],
+        urls: [process.env.RABBITMQ_URI],
         queue: queue,
         persistent: true,
         queueOptions: {

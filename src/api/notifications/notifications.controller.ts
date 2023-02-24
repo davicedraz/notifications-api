@@ -30,25 +30,30 @@ export class NotificationsController {
 
   @Post()
   async createNotification(@Body(ValidationPipe) newNotification: CreateNotificationDTO): Promise<NotificationDTO> {
-    let notification = await this.notificationsService.createNotification(
-      newNotification.title,
-      newNotification.content,
-      newNotification.userEmail,
-      newNotification.imageUrl,
-      newNotification.channel,
-      newNotification.sendAfter
-    );
+    try {
+      let notification = await this.notificationsService.createNotification(
+        newNotification.title,
+        newNotification.content,
+        newNotification.userEmail,
+        newNotification.imageUrl,
+        newNotification.channel,
+        newNotification.sendAfter
+      );
 
-    const notificationDTO = NotificationDTO.fromEntity(notification)
-    this.amqpService.send('create-new-notification',
-      { notification: notificationDTO }
-    ).subscribe();
+      const notificationDTO = NotificationDTO.fromEntity(notification)
+      this.amqpService.send('create-new-notification',
+        { notification: notificationDTO }
+      ).subscribe();
 
-    notificationDTO.sentAt = new Date();
-    this.logger.log(`Notification ${notification.id} sent at ${notificationDTO.sentAt}`);
+      notificationDTO.sentAt = new Date();
+      this.logger.log(`Notification ${notification.id} sent at ${notificationDTO.sentAt}`);
 
-    notification = await this.notificationsService.updateNotification(notification.id, notificationDTO);
-    return NotificationDTO.fromEntity(notification);
+      notification = await this.notificationsService.updateNotification(notification.id, notificationDTO);
+      return NotificationDTO.fromEntity(notification);
+    } catch (error) {
+      // console.log(error, "davizin é sal")
+    }
+  
   }
 
   @Patch(':id')

@@ -1,3 +1,4 @@
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { VersioningType } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
@@ -5,8 +6,6 @@ import { AppModule } from './app.module';
 import { rateLimit } from 'express-rate-limit';
 import * as morgan from 'morgan';
 import helmet from 'helmet';
-import { RabbitmqService } from './amqp/rabbitmq.service';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 function handleSecurity(app) {
   app.use(helmet()); //middleware to set security headers
@@ -29,6 +28,8 @@ function generateAPIDocs(app) {
 }
 
 async function bootstrap() {
+  console.log("MONGODB_URI", process.env.MONGODB_URI);
+  console.log("RABBITMQ_URI", process.env.RABBITMQ_URI);
   const app = await NestFactory.create(AppModule);
 
   app.enableVersioning({ type: VersioningType.URI, defaultVersion: '1' });

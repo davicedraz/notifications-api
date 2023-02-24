@@ -14,7 +14,7 @@ import { ConfigModule } from '@nestjs/config';
     ClientsModule.registerAsync([{
       name: AMQP_SERVICE,
       imports: [ConfigModule],
-      useFactory: () => (RabbitmqService.getOptions(process.env.RABBIT_MQ_QUEUE)),
+      useFactory: () => (RabbitmqService.getOptions(process.env.RABBITMQ_QUEUE)),
     }]),
     MongooseModule.forFeature([{ name: Notification.name, schema: NotificationSchema }])
   ],
