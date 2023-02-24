@@ -7,7 +7,7 @@ import { DatabaseModule } from './database/database.module';
   imports: [
     ApiModule,
     AmqpModule,
-    DatabaseModule,
-  ],
+    DatabaseModule
+  ]
 })
 export class AppModule { }

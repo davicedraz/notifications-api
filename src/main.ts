@@ -28,8 +28,6 @@ function generateAPIDocs(app) {
 }
 
 async function bootstrap() {
-  console.log("MONGODB_URI", process.env.MONGODB_URI);
-  console.log("RABBITMQ_URI", process.env.RABBITMQ_URI);
   const app = await NestFactory.create(AppModule);
 
   app.enableVersioning({ type: VersioningType.URI, defaultVersion: '1' });

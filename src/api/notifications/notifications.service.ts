@@ -32,6 +32,10 @@ export class NotificationsService {
     })
   }
 
+  async deleteNotification(notificationId: string): Promise<Notification> {
+    return this.notificationsRepository.deleteOne({ notificationId });
+  }
+
   async updateNotification(notificationId: string, notificationUpdates: Partial<NotificationDTO>): Promise<Notification> {
     return this.notificationsRepository.findOneAndUpdate({ notificationId }, notificationUpdates);
   }

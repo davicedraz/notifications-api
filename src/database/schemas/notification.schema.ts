@@ -5,7 +5,7 @@ export type NotificationDocument = Notification & Document;
 
 @Schema({ timestamps: true })
 export class Notification {
-  @Prop()
+  @Prop({ required: true, immutable: true })
   id: string;
 
   @Prop({ required: true, immutable: true })

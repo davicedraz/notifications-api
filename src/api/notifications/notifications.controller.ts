@@ -1,7 +1,6 @@
-import { Body, Controller, Get, Inject, Logger, Param, Patch, Post, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Inject, Logger, Param, Post, ValidationPipe } from '@nestjs/common';
 import { NotificationsService } from './notifications.service';
 import { CreateNotificationDTO } from './dto/create-notification.dto';
-import { UpdateNotificationDTO } from './dto/update-notification.dto';
 import { ClientProxy } from '@nestjs/microservices';
 import { NotificationDTO } from './dto/notification.dto';
 import { AMQP_SERVICE } from 'util/constants';
@@ -30,35 +29,30 @@ export class NotificationsController {
 
   @Post()
   async createNotification(@Body(ValidationPipe) newNotification: CreateNotificationDTO): Promise<NotificationDTO> {
-    try {
-      let notification = await this.notificationsService.createNotification(
-        newNotification.title,
-        newNotification.content,
-        newNotification.userEmail,
-        newNotification.imageUrl,
-        newNotification.channel,
-        newNotification.sendAfter
-      );
+    let notification = await this.notificationsService.createNotification(
+      newNotification.title,
+      newNotification.content,
+      newNotification.userEmail,
+      newNotification.imageUrl,
+      newNotification.channel,
+      newNotification.sendAfter
+    );
 
-      const notificationDTO = NotificationDTO.fromEntity(notification)
-      this.amqpService.send('create-new-notification',
-        { notification: notificationDTO }
-      ).subscribe();
+    const notificationDTO = NotificationDTO.fromEntity(notification)
+    this.amqpService.send('create-new-notification',
+      { notification: notificationDTO }
+    ).subscribe();
 
-      notificationDTO.sentAt = new Date();
-      this.logger.log(`Notification ${notification.id} sent at ${notificationDTO.sentAt}`);
+    notificationDTO.sentAt = new Date();
+    this.logger.log(`Notification ${notification.id} sent at ${notificationDTO.sentAt}`);
 
-      notification = await this.notificationsService.updateNotification(notification.id, notificationDTO);
-      return NotificationDTO.fromEntity(notification);
-    } catch (error) {
-      // console.log(error, "davizin é sal")
-    }
-  
+    notification = await this.notificationsService.updateNotification(notification.id, notificationDTO);
+    return NotificationDTO.fromEntity(notification);
   }
 
-  @Patch(':id')
-  async updateNotification(@Param('id') notificationId: string, @Body(ValidationPipe) updatedNotification: Partial<UpdateNotificationDTO>): Promise<NotificationDTO> {
-    const notification = await this.notificationsService.updateNotification(notificationId, updatedNotification);
+  @Delete(':id')
+  async deleteNotification(@Param('id') notificationId: string) {
+    const notification = await this.notificationsService.deleteNotification(notificationId);
     return NotificationDTO.fromEntity(notification);
   }
 }

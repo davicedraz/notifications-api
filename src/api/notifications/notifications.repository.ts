@@ -30,4 +30,8 @@ export class NotificationsRepository {
     return this.notificationModel.findOneAndUpdate(notificationFilterQuery, newNotification, { new: true });
   }
 
+  async deleteOne(notificationFilterQuery: FilterQuery<Notification>): Promise<Notification> {
+    return this.notificationModel.findOneAndDelete(notificationFilterQuery);
+  }
+
 }
