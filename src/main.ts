@@ -8,6 +8,7 @@ import * as morgan from 'morgan';
 import helmet from 'helmet';
 
 function handleSecurity(app) {
+  app.enableCors();
   app.use(helmet()); //middleware to set security headers
   app.use(rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes

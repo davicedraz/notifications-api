@@ -1,4 +1,4 @@
-﻿import { Body, Controller, Get, Logger, Param, Patch, Post, ValidationPipe } from '@nestjs/common';
+﻿import { Body, Controller, Get, Logger, Param, Patch, Post, ValidationPipe, NotFoundException } from '@nestjs/common';
 import { CreateUserDTO, UserPreferencesDTO } from './dto/create-user.dto';
 import { UpdateUserDTO } from './dto/update-user.dto';
 import { UserDTO } from './dto/user.dto';
@@ -40,6 +40,8 @@ export class UsersController {
   @Patch()
   async updateUser(@Body(ValidationPipe) userToBeUpdated: Partial<UpdateUserDTO>): Promise<UserDTO> {
     const user = await this.userService.getUserByEmail(userToBeUpdated.email);
+    if (!user) throw new NotFoundException('No user registered with given email');
+
     const updatedUser = await this.userService.updateUser(user.id, userToBeUpdated);
     return UserDTO.fromEntity(updatedUser);
   }

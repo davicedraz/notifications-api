@@ -24,8 +24,24 @@ export class UsersRepository {
     return newUser.save();
   }
 
-  async findOneAndUpdate(userFilterQuery: FilterQuery<User>, updatedUser: Partial<User>): Promise<User> {
-    return this.userModel.findOneAndUpdate(userFilterQuery, updatedUser, { new: true });
+  async findOneAndUpdate(userFilterQuery: FilterQuery<User>, userToBeUpdated: Partial<User>): Promise<User> {
+    const existingUser = await this.userModel.findOne(userFilterQuery);
+
+    const updatedFields = {};
+    for (const key in userToBeUpdated) {
+      if (userToBeUpdated[key] !== existingUser[key]) {
+        updatedFields[key] = userToBeUpdated[key];
+      }
+    }
+
+    const updatedUserData = await this.userModel.findOneAndUpdate(
+      userFilterQuery,
+      { $set: updatedFields },
+      { new: true }
+    ).lean();
+
+    const updatedUser = new this.userModel(updatedUserData);
+    return updatedUser;
   }
 
   async deleteOne(userFilterQuery: FilterQuery<User>): Promise<User> {
