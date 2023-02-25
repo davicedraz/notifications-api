@@ -38,15 +38,19 @@ docker-compose up
 
 ## API Documentation (Swagger) 
 
-![Swagger](docs/img/swagger.png)
+Hit `/docs` to see API documentation
 
-Hit `/docs`
 ```bash
 http://localhost:3000/docs
 ```
 
+![Swagger](docs/img/swagger.png)
+
+
+
 
 ## Test
+
 
 ```bash
 # unit tests
@@ -58,3 +62,5 @@ $ npm run test:e2e
 # test coverage
 $ npm run test:cov
 ```
+
+![Tests](docs/img/unit-tests.png)
