@@ -1,7 +1,8 @@
-﻿import { Injectable, Logger } from '@nestjs/common';
+﻿import { Notification } from './../../database/schemas/notification.schema';
+import { NotificationDocument } from 'src/database/schemas/notification.schema';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, Model } from 'mongoose';
-import { Notification, NotificationDocument } from 'src/database/schemas/notification.schema';
 
 
 @Injectable()

@@ -1,4 +1,4 @@
-﻿import { Notification } from "src/database/schemas/notification.schema";
+﻿import { Notification } from './../../../database/schemas/notification.schema';
 
 export class NotificationDTO {
   id: string;

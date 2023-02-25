@@ -9,7 +9,6 @@ import { UsersService } from '../users/users.service';
 import { User } from 'src/database/schemas/user.schema';
 import { UserDTO } from '../users/dto/user.dto';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { formatDateWithTimezone } from 'src/utils/date-format';
 
 
 @Injectable()
@@ -60,7 +59,7 @@ export class NotificationsService {
     ).subscribe();
 
     notification = await this.notificationsRepository.updateSentAt(notification);
-    this.logger.log(`Notification ${notification.id} sent at ${formatDateWithTimezone(notification.sentAt)}`);
+    this.logger.log(`Notification ${notification.id} sent at ${notification.sentAt}`);
     return notification;
   }
 

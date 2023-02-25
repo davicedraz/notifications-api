@@ -1,4 +1,4 @@
-﻿import { User } from "src/database/schemas/user.schema";
+﻿import { User } from '../../../database/schemas/user.schema';
 
 export class UserDTO {
   id: string;
