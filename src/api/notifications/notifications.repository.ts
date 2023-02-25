@@ -27,11 +27,32 @@ export class NotificationsRepository {
   }
 
   async findOneAndUpdate(notificationFilterQuery: FilterQuery<Notification>, newNotification: Partial<Notification>): Promise<Notification> {
-    return this.notificationModel.findOneAndUpdate(notificationFilterQuery, newNotification, { new: true });
+    const updatedNotification = await this.notificationModel.findOneAndUpdate(
+      notificationFilterQuery,
+      { $set: newNotification },
+      { new: true }
+    );
+    return updatedNotification;
+  }
+
+  async updateSentAt(notification: any) {
+    return await this.notificationModel.findOneAndUpdate(
+      { _id: notification._id },
+      { sentAt: new Date() },
+      { new: true }
+    );
   }
 
   async deleteOne(notificationFilterQuery: FilterQuery<Notification>): Promise<Notification> {
     return this.notificationModel.findOneAndDelete(notificationFilterQuery);
+  }
+
+  async findAllPendingNotifications() {
+    return this.notificationModel.find({
+      $and: [
+        { sentAt: { $exists: false } },
+        { scheduledAt: { $exists: true } }]
+    });
   }
 
 }

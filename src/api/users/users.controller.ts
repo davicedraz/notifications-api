@@ -25,7 +25,7 @@ export class UsersController {
 
   @Post()
   async createUser(@Body(ValidationPipe) newUser: CreateUserDTO): Promise<UserDTO> {
-
+    
     let user = await this.userService.createUser(
       newUser.name,
       newUser.email,
@@ -34,6 +34,7 @@ export class UsersController {
       newUser.preferences,
     );
 
+    this.logger.log("Created new user", user);
     return UserDTO.fromEntity(user);
   }
 

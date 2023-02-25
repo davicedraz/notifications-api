@@ -5,6 +5,7 @@ import { CreateNotificationDTO } from './dto/create-notification.dto';
 import { NotificationDTO } from './dto/notification.dto';
 
 import { Response } from 'express';
+import { formatDateWithTimezone } from 'src/utils/date-format';
 
 @Controller('notifications')
 export class NotificationsController {
@@ -27,9 +28,18 @@ export class NotificationsController {
   }
 
   @Post()
-  async createNotification(@Body(ValidationPipe) newNotification: CreateNotificationDTO, @Res() response: Response): Promise<NotificationDTO | Response<any>> {
+  async createNotification(@Body(ValidationPipe) newNotification: CreateNotificationDTO, @Res() response: Response): Promise<Response<any>> {
     const user = await this.userService.getUserByEmail(newNotification.userEmail);
     if (!user) throw new NotFoundException('No user registered with given email');
+
+    const isUserSubscribed = this.userService.shouldUserReceiveNotification(user, newNotification.channel);
+    if (!isUserSubscribed) {
+      return response.status(HttpStatus.FORBIDDEN)
+        .send({
+          message: `User opted-out for ${newNotification.channel} notifications`,
+          notification: newNotification
+        });
+    }
 
     let notification = await this.notificationsService.createNotification(
       newNotification.title,
@@ -40,18 +50,21 @@ export class NotificationsController {
       newNotification.sendAfter
     );
 
-    const notificationSent = await this.notificationsService.sendNotification(user, notification);
-
-    if (!notificationSent.sentAt) {
-      return response.status(HttpStatus.ACCEPTED)
+    const shouldSendNow = this.notificationsService.shouldSendNotificationNow(notification);
+    if (shouldSendNow) {
+      const notificationSent = await this.notificationsService.sendNotification(user, notification);
+      return response.status(HttpStatus.CREATED)
         .send({
-          message: `User opted-out for ${notification.channel} notifications`,
+          message: "ok",
           notification: NotificationDTO.fromEntity(notificationSent)
         });
     }
 
     return response.status(HttpStatus.CREATED)
-      .send(NotificationDTO.fromEntity(notificationSent));
+      .send({
+        message: `Scheduled notification delivery to ${formatDateWithTimezone(notification.scheduledAt)} via ${notification.channel}`,
+        notification: NotificationDTO.fromEntity(notification)
+      });
   }
 
   @Delete(':id')

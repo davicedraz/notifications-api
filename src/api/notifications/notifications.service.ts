@@ -8,6 +8,9 @@ import { ClientProxy } from '@nestjs/microservices';
 import { UsersService } from '../users/users.service';
 import { User } from 'src/database/schemas/user.schema';
 import { UserDTO } from '../users/dto/user.dto';
+import { Cron, CronExpression } from '@nestjs/schedule';
+import { formatDateWithTimezone } from 'src/utils/date-format';
+
 
 @Injectable()
 export class NotificationsService {
@@ -15,30 +18,50 @@ export class NotificationsService {
   private readonly logger = new Logger(NotificationsService.name);
 
   constructor(
-    private readonly notificationsRepository: NotificationsRepository,
     private readonly userService: UsersService,
-    @Inject(AMQP_SERVICE) private amqpService: ClientProxy
+    @Inject(AMQP_SERVICE) private amqpService: ClientProxy,
+    private readonly notificationsRepository: NotificationsRepository,
   ) { }
+
+  @Cron(CronExpression.EVERY_10_SECONDS)
+  async checkPendingNotifications() {
+    const now = new Date();
+    this.logger.log(`Checking database for pending notifications`);
+    const pendingNotifications = await this.notificationsRepository.findAllPendingNotifications();
+
+    if (!pendingNotifications.length) {
+      this.logger.log(`No pending notifications to send`);
+      return;
+    }
+
+    for (const notification of pendingNotifications) {
+      try {
+        if (notification.scheduledAt <= now) {
+          const user = await this.userService.getUserByEmail(notification.userEmail);
+          this.logger.log(`Sending notification ${notification.id} scheduled at ${notification.scheduledAt}`);
+          await this.sendNotification(user, notification);
+        }
+      } catch (error) {
+        this.logger.error(`Error while sending notification ${notification.id}: ${error.message}`);
+      }
+    }
+  }
+
+  shouldSendNotificationNow(notification: Notification) {
+    const now = new Date();
+    const shouldSendLater = notification.scheduledAt && notification.scheduledAt >= now;
+    return !shouldSendLater;
+  }
 
   async sendNotification(user: User, notification: Notification): Promise<Notification> {
     const notificationDTO = NotificationDTO.fromEntity(notification);
+    this.amqpService.send('create-new-notification',
+      { notification: notificationDTO, user: UserDTO.fromEntity(user) }
+    ).subscribe();
 
-    if (this.userService.shouldSendNotification(user, notification)) {
-      this.amqpService.send('create-new-notification',
-        { notification: notificationDTO, user: UserDTO.fromEntity(user) }
-      ).subscribe();
-
-      notification = await this.updateSentAt(notificationDTO);
-      this.logger.log(`Notification ${notification.id} sent at ${notification.sentAt}`);
-      return notification;
-    }
-    this.logger.log(`[NOT SEND]: User ${user.id} ("${user.name}") opted-out for ${notification.channel} notifications`);
+    notification = await this.notificationsRepository.updateSentAt(notification);
+    this.logger.log(`Notification ${notification.id} sent at ${formatDateWithTimezone(notification.sentAt)}`);
     return notification;
-  }
-
-  async updateSentAt(notification: NotificationDTO): Promise<Notification> {
-    notification.sentAt = new Date();
-    return this.updateNotification(notification.id, notification);
   }
 
   async getNotificationById(notificationId: string): Promise<Notification> {

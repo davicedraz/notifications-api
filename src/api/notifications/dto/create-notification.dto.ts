@@ -17,7 +17,7 @@ export class CreateNotificationDTO {
 
   @ApiProperty({ required: true, description: 'Channel on which the notification should be sent (currently only "web_push" channel is supported)' })
   @IsEnum(NotificationChannelDTO)
-  channel: string;
+  channel: NotificationChannelDTO;
 
   @ApiProperty({ required: true, description: 'Email of the registered user who should receive the notification. It will not be send if the User has unsubscribed' })
   @IsNotEmpty({ message: 'user email cannot be empty' })

@@ -4,13 +4,14 @@ import { Injectable } from '@nestjs/common';
 import { User } from 'src/database/schemas/user.schema';
 import { Notification } from 'src/database/schemas/notification.schema';
 import { UsersRepository } from './user.repository';
+import { NotificationChannelDTO } from '../notifications/dto/notification-channel.dto';
 
 @Injectable()
 export class UsersService {
   constructor(private readonly usersRepository: UsersRepository) { }
 
-  shouldSendNotification(user: User, notification: Notification) {
-    const userPreferenceForChannel = user.preferences.find(p => p.channel == notification.channel);
+  shouldUserReceiveNotification(user: User, channel: NotificationChannelDTO) {
+    const userPreferenceForChannel = user.preferences.find(p => p.channel == channel);
     return userPreferenceForChannel.enabled;
   }
 
